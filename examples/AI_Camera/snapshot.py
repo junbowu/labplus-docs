@@ -1,17 +1,16 @@
 from mpython import *
-from smartcamera import SmartCamera
+import smartcamera
+import time
+import music
+ai_camera = smartcamera.SmartCamera(Pin.P13, Pin.P14)
 
-
-ai_camera =SmartCamera(Pin.P13,Pin.P14)
-
-LED_iS_ON = False
 while True:
-    if ai_camera.button.is_pressed() and LED_iS_ON== False:
-        ai_camera.light.on()
-        LED_iS_ON = True
-        print('Light on!')
-    elif  ai_camera.button.is_pressed() and LED_iS_ON== True:
-        ai_camera.light.off()
-        LED_iS_ON = False
-        print('Light off!')
-    ai_camera.lcd.display(ai_camera.sensor.snapshot())
+    img = ai_camera.sensor.snapshot()
+    ai_camera.lcd.display(img)
+    if ai_camera.button.was_pressed():
+        localtime = time.localtime()
+        img_name = "img_{:2d}_{:2d}_{:2d}.jpg" .format(
+            localtime[3], localtime[4], localtime[5])
+        img.save("/sd/{}" .format(img_name))
+        music.pitch(1000, 200)
+        print('Save image: {}' .format(img_name))

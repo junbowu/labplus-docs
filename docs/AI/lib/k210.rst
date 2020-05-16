@@ -12,7 +12,14 @@ Image 类
 
 构建对象
 ~~~~~~~~~~
-.. class:: Image()
+.. class:: Image(repl, ref=None)
+
+-----------------------------------------
+
+兼容掌控板绘图相关
+::::::::::::::::::
+
+    为了便于使用和教学,提供一些与掌控板相兼容的绘图函数接口。注意,这些函数并不是MaixPy原生所有。
 
 
     .. method:: Image.DispChar(text, x, y, color=(255, 255, 255))
@@ -73,20 +80,233 @@ Image 类
         - ``x`` 、``y`` -- 左上坐标 
         - ``w`` 、 ``h`` -- 宽,高
         - ``c`` -- 颜色
-        - ``thickness`` -- 线粗
 
-    .. method:: Image.draw_image(Image, x, y, x_scale=1.0, y_scale=1.0, alpha=256)
+ -------------------------------------------
 
-    画中画,在图像中绘制一个 `image` 。
+OpenMV
+:::::::::::::
 
-        - ``x`` 、``y`` -- 左上坐标 
-        - ``x_scale`` --  控制绘制的图像在x方向的缩放(浮点数)
-        - ``y_scale`` --  控制绘制的图像在y方向的缩放(浮点数)
-        - ``alpha`` --  控制另一幅图像与这幅图像的混合程度。 alpha 应该是0到256之间的一个整数值。接近零的值会将更多其他图像混合到该图像中，而接近256的值则相反。
+    移植于MaixPy的OpenMV函数
+
+    .. method:: Image.load(path, copy_to_fb=True)
+
+    从 ``path`` 中的文件中创建一个新的图像对象。可以把图片存放至SD卡中,将对应图片文件路径作为该函数参数,将会创建该帧图片对象。支持bmp/pgm/ppm/jpg/jpeg格式的图像文件。
+    
+    若 ``copy_to_fb`` 为True，图像会直接载入帧缓冲区，您就可以加载大幅图片了。若为False，图像会载入MicroPython的堆中，堆远比帧缓冲区小。``copy_to_fb`` 为False，您应该尽量把图像大小控制在8KB以下。若为True，则图像最大可为160KB。
+
+    .. attention:: 使用时需要注意图片分辨率大小,过大的话会导致内存错误！
+    
+    .. method:: save(path, roi=None, quality=50)
+
+    将图像的副本保存到 ``path`` 中的k210的文件系统
+
+    支持bmp/pgm/ppm/jpg/jpeg格式的图像文件。注意：您无法将jpeg格式的压缩图像保存成未压缩的格式。
+
+    ``roi`` 是一个用以复制的矩形的感兴趣区域(x, y, w, h)。如果未指定，ROI即复制整个图像的图像矩形。但这不适用于 ``JPEG`` 图像。
+
+    ``quality`` 指在图像尚未被压缩时将图像保存为JPEG格式的JPEG压缩质量。
+
+
+    .. method:: Image.width()
+
+    返回以像素计的图像的宽度。
+
+    .. method:: Image.height()
+
+    返回以像素计的图像的高度。
+
+    .. method:: Image.format()
+
+    返回用于灰度图的 sensor.GRAYSCALE 、用于RGB图像的 sensor.RGB565
+
+    .. method:: Image.size()
+
+    返回以字节计的图像大小。
 
     .. method:: Image.clear()
 
-    将图像中的所有像素设置为零。
+    将图像中的所有像素设置为零（非常快）。
+
+    返回图像对象，以便您可以使用 . 表示法调用另一个方法。
+
+    不支持压缩图像。
+
+    .. method:: Image.pix_to_ai()
+
+    将图像的所有像素点转换成AI运算的数据
+
+    .. method:: Image.binary(threshold, invert=False, zero=False)
+
+    根据像素是否在阈值列表 ``thresholds`` 中的阈值内，将图像中的所有像素设置为黑色或白色。
+
+    ``thresholds`` 必须是元组列表。 [(lo, hi), (lo, hi), ..., (lo, hi)] 定义你想追踪的颜色范围。
+    对于灰度图像，每个元组需要包含两个值 - 最小灰度值和最大灰度值。 仅考虑落在这些阈值之间的像素区域。 
+    对于RGB565图像，每个元组需要有六个值(l_lo，l_hi，a_lo，a_hi，b_lo，b_hi) - 分别是LAB L，A和B通道的最小值和最大值。
+    为方便使用，此功能将自动修复交换的最小值和最大值。此外，如果元组大于六个值，则忽略其余值。
+    相反，如果元组太短，则假定其余阈值处于最大范围。
+
+    ``invert`` 反转阈值操作，像素在已知颜色范围之外进行匹配，而非在已知颜色范围内。
+
+    设置 ``zero`` 为 ``True`` 来使阈值像素为零，并使不在阈值列表中的像素保持不变。
+
+    不支持压缩图像和bayer图像。
+
+    .. method:: Image.strech_char(de_dark)
+
+    预处理消除暗角
+
+    .. method:: Image.invert()
+
+    将二进制图像0（黑色）变为1（白色），1（白色）变为0（黑色），非常快速地翻转二进制图像中的所有像素值。
+
+    不支持压缩图像和Bayer图像。
+
+    .. method:: Image.draw_string(x, y, text, scale=1, x_spacing=0, y_spacing=0, mono_space=True)
+
+
+    从图像中的(x, y)位置开始绘制8x10文本。您可以单独传递x，y，也可以作为元组(x，y)传递。
+
+        - ``text`` -  是写入图像的字符串。 \n, \r, 和 \r\n 结束符将光标移至下一行。
+        - ``color`` -  是用于灰度或RGB565图像的元组。默认为白色。但是，您也可以传递灰度图像的基础像素值(0-255)或RGB565图像的字节反转RGB565值。
+        - ``scale`` - 增加图像上文本的大小,仅整数值。
+        - ``x_spacing`` -  允许你在字符之间添加（如果是正数）或减去（如果是负数）x像素，设置字符间距。
+        - ``y_spacing`` -  允许你在字符之间添加（如果是正数）或减去（如果是负数）y像素，设置行间距。
+        - ``mono_space`` - 默认为True，强制文本间距固定。对于大文本，这看起来很糟糕。设置False以获得非固定宽度的字符间距。
+
+    .. method:: Image.draw_line(x0, y0, x1, y1, color=(255, 255, 255), thickness=1)
+
+    在图像上绘制一条从(x0，y0)到(x1，y1)的线。 您可以单独传递x0，y0，x1，y1，也可以传递给元组(x0，y0，x1，y1)。
+
+    - ``color`` -  是用于灰度或RGB565图像的元组。默认为白色。但是，您也可以传递灰度图像的基础像素值(0-255)或RGB565图像的字节反转RGB565值。
+    - ``thickness`` -  控制线的粗细像素。
+
+    .. method:: Image.draw_circle(x, y, radius, color=(255, 255, 255), thickness=1, fill=False)
+
+
+    在图像上绘制一个圆形。 您可以单独传递x，y，半径 或 作为元组(x，y，radius)传递。
+
+    - ``color`` -  是用于灰度或RGB565图像的元组。默认为白色。但是，您也可以传递灰度图像的基础像素值(0-255)或RGB565图像的字节反转RGB565值。
+    - ``thickness`` -  控制线的粗细像素。
+    - ``fill`` - 设置为True以填充圆形。
+
+    .. method:: Image.draw_rectangle(x, y, w, h, color=(255, 255, 255), thickness=1, fill=False)
+
+    在图像上绘制一个矩形。 您可以单独传递x，y，w，h或作为元组(x，y，w，h)传递。
+
+    - ``color`` -  是用于灰度或RGB565图像的元组。默认为白色。但是，您也可以传递灰度图像的基础像素值(0-255)或RGB565图像的字节反转RGB565值。
+    - ``thickness`` -  控制线的粗细像素。
+    - ``fill`` - 设置为True以填充矩形。
+
+    .. method:: Image.draw_cross(x, y, color=(255, 255, 255), size=5, thickness=1)
+
+    在图像上绘制一个十字。 您可以单独传递x，y或作为元组(x，y)传递。
+
+    - ``color`` -- 是用于灰度或RGB565图像的RGB888元组。默认为白色。但是，您也可以传递灰度图像的基础像素值(0-255)或RGB565图像的字节反转RGB565值。
+
+    - ``size`` --  控制十字线的延伸长度。
+
+    - ``thickness`` -- 控制边缘的像素厚度。
+
+    返回图像对象，以便您可以使用 . 表示法调用另一个方法。
+
+    不支持压缩图像和bayer图像。
+
+    .. method:: Image.draw_arrow(x0, y0, x1, y1, color=(255, 255, 255), thickness=1)
+
+
+    在图像上绘制一条从(x0，y0)到(x1，y1)的箭头。 
+
+    - ``color`` - 是用于灰度或RGB565图像的元组。默认为白色。但是，您也可以传递灰度图像的基础像素值(0-255)或RGB565图像的字节反转RGB565值。
+    - ``thickness`` - 控制线的粗细像素。
+
+    .. method:: Image.draw_image( image, x, y, x_scale=1.0, y_scale=1.0, alpha=256)
+
+    绘制一个 ``image`` ，其左上角从位置x，y开始。
+
+        - ``x_scale`` --  控制图像在x方向(浮点数)缩放的程度。
+
+        - ``y_scale`` -- 控制图像在y方向(浮点数)缩放的程度。
+
+        - ``alpha`` -- 控制另一幅图像与这幅图像的混合程度。 alpha 应该是0到256之间的一个整数值。接近零的值会将更多其他图像混合到该图像中，而接近256的值则相反。
+
+    返回图像对象，以便您可以使用 . 表示法调用另一个方法。
+
+    不支持压缩图像和bayer图像。
+
+    .. method:: Image.get_pixel(x, y)
+
+    灰度图：返回(x, y)位置的灰度像素值。
+
+    RGB565：返回(x, y)位置的RGB888像素元组(r, g, b)。
+
+
+    不支持压缩图像。
+
+    .. method:: Image.set_pixel(x, y, pixel)
+
+    灰度图：将(x, y) 位置的像素设置为灰度值 ``pixel`` 。
+
+    RGB图像：将(x, y) 位置的像素设置为RGB888元组(r, g, b) pixel 。
+
+    不支持压缩图像。
+
+    .. method:: Image.mean_pool( x_div, y_div)
+
+
+    在图像中找到 ``x_div`` * ``y_div`` 正方形的平均值，并返回由每个正方形的平均值组成的修改图像。
+
+    此方法允许您在原来图像上快速缩小图像。
+
+    不支持压缩图像和bayer图像。
+
+    .. method:: Image.to_rainbow()
+
+    将图像转换为彩虹图像。 此方法也会修改基础图像像素，以字节为单位更改图像大小，因此只能在RGB565图像上进行。
+
+
+    .. method:: Image.copy(roi, copy_to_fb=True)
+
+    创建一个图像对象的副本。
+
+    - ``roi`` -- 是一个用以复制的矩形的感兴趣区域(x, y, w, h)。如果未指定，ROI即复制整个图像的图像矩形。但这不适用于JPEG图像。
+    - ``copy_to_fb`` -- 如果 ``copy_to_fb`` 为 ``True`` ，则该方法将帧缓冲替换为图像。 帧缓冲区具有比堆大得多的空间，并且可以容纳大图像。
+
+    .. method:: Image.to_grayscale(copy=False, rgb_channel=-1)
+
+    将图像转换为灰度图像。 此方法也会修改基础图像像素，以字节为单位更改图像大小，因此只能在灰度图像或RGB565图像上进行。 否则 ``copy`` 必须为True才能在堆上创建新的修改图像。
+
+    ``rgb_channel`` 如果设置为0/1/2，则分别从R/G/B通道创建一个灰度图像， 而如果在 `RGB565` 图像上调用此方法，则从 `RGB565` 像素计算灰度值。
+
+    返回图像对象，以便您可以使用 . 表示法调用另一个方法。
+
+    不支持压缩图像和bayer图像。
+
+    .. method:: Image.resize(w,h)
+
+    改变图像大小, ``w`` 、``h`` 为图像修改后的图像宽高
+
+
+
+    .. method:: Image.find_blobs( thresholds, invert=False, roi=None, x_stride=2, y_stride=1, area_threshold=10, pixels_threshold=10, merge=False, margin=0)
+
+    查找图像中所有色块，并返回一个包括每个色块的色块对象的列表。请观察 ``blob`` 对象以获取更多信息。
+   
+        - ``thresholds`` - 必须是元组列表。[(lo, hi), (lo, hi), ..., (lo, hi)] 定义你想追踪的颜色范围。对于灰度图像，每个元组需要包含两个值-最小灰度值和最大灰度值。仅考虑落在这些阈值之间的像素区域。对于RGB565图像，每个元组需要有六个值(l_lo，l_hi，a_lo，a_hi，b_lo，b_hi) - 分别是LAB L，A和B通道的最小值和最大值。为方便使用，此功能将自动修复交换的最小值和最大值。此外，如果元组大于六个值，则忽略其余值。相反，如果元组太短，则假定其余阈值处于最大范围。
+        - ``invert`` - 反转阈值操作，像素在已知颜色范围之外进行匹配，而非在已知颜色范围内。
+        - ``roi`` - 感兴趣区域的矩形元组(x，y，w，h)。如果未指定，ROI即整个图像的图像矩形。操作范围仅限于 ``roi`` 区域内的像素。
+        - ``x_stride`` - 查找某色块时需要跳过的x像素的数量。找到色块后，直线填充算法将精确像素。若已知色块较大，可增加 ``x_stride`` 来提高查找色块的速度。
+        - ``y_stride`` - 查找某色块时需要跳过的y像素的数量。找到色块后，直线填充算法将精确像素。若已知色块较大，可增加 ``y_stride`` 来提高查找色块的速度。
+        - ``area_threshold`` - 若一个色块的边界框区域小于 ``area_threshold`` ，则会被过滤掉。
+        - ``pixel_threshold`` - 若一个色块的像素数小于 ``pixel_threshold`` ，则会被过滤掉。
+        - ``merge`` - 若为True，则合并所有没有被过滤掉的色块，这些色块的边界矩形互相交错重叠。 
+        - ``margin`` - 可在相交测试中用来增大或减小色块边界矩形的大小。例如：边缘为1、相互间边界矩形为1的色块将被合并。
+
+        合并色块使颜色代码追踪得以实现。每个色块对象有一个代码值 ``code`` ，该值为一个位向量。
+        例如：若您在 `image.find_blobs` 中输入两个颜色阈值，则第一个阈值代码为1，第二个代码为2（第三个代码为4，第四个代码为8，以此类推）。
+        合并色块对所有的code使用逻辑或运算，以便您知道产生它们的颜色。这使得您可以追踪两个颜色，若您用两种颜色得到一个色块对象，则可能是一种颜色代码。
+
+        若您使用严格的颜色范围，无法完全追踪目标对象的所有像素，您可能需要合并色块。最后，若您想要合并色块，但不想两种不同阈值颜色的色块被合并，只需分别两次调用 ``image.find_blobs`` ，不同阈值色块就不会被合并。
+
 
 Sensor 类
 +++++++++++++
@@ -96,20 +316,117 @@ Sensor 类
 构建对象
 ~~~~~~~~~~
 
-.. class:: Sensor()
+.. class:: Sensor(repl)
 
 
     .. method:: Sensor.snapshot()
 
-    拍摄图像,返回Image对象。
+    摄像头拍摄图像,返回 ``Image`` 对象。
 
     .. method:: Sensor.set_vflip(enable)
 
-    打开（True）或关闭（False）垂直翻转模式。默认关闭。
+    垂直翻转模式。``True`` 打开或 ``False`` 关闭。默认关闭。
 
     .. method:: Sensor.set_hmirror(enable)
 
-    打开（True）或关闭（False）水平镜像模式。默认关闭。
+    水平镜像模式。``True`` 打开或 ``False`` 关闭。默认关闭。
+
+
+
+
+    ..  method:: Sensor.set_framesize(framesize)
+
+    用于设置摄像头输出帧大小，k210最大支持VGA格式，大于VGA将无法获取图像。推荐设置为 ``Sensor.QVGA`` 大小。
+
+        - `Sensor.QVGA` -- 320x240
+        - `Sensor.QQVGA` -- 160x120
+        - `Sensor.QQQVGA` -- 80x60
+        - `Sensor.QQQQVGA` -- 40x30
+
+
+    ..  method:: Sensor.set_pixformat(format)
+
+    用于设置摄像头输出格式,推荐设置为 ``Sensor.RGB565`` 格式
+
+    - `Sensor.RGB565` -- 8-bits per pixel.
+    - `Sensor.GRAYSCALE` -- 16-bits per pixel.
+
+    ..  method:: Sensor.set_windowing(roi)
+
+    设置摄像头窗口大小。例如：你可以 set_windowing((224,224)) ， 然后 ``Sensor.snapshot()`` 以捕捉由摄像头输出的320*240分辨率的224x224中心像素。
+    您可使用窗口来获得定制的分辨率。
+
+    ..  method:: Sensor.skip_frames([n, time])
+
+    跳过指定帧数或者跳过指定时间内的图像，让相机图像在改变相机设置后稳定下来
+
+        - ``n`` -- 跳过 n 帧图像
+        - ``time`` -- 跳过指定时间，单位为ms
+
+    若 `n` 和 `time` 皆未指定，该方法跳过300毫秒的帧；若二者皆指定，该方法会跳过 `n` 数量的帧，但将在 `time` 毫秒后返回
+
+    ..  method:: Sensor.run(enable)
+    
+    启动或关闭捕获图像功能(默认经过复位，设置帧大小，设置像素格式后会自动启动摄像头，不调用run(1)也会开始采集图像)
+
+    - ``enable`` -- 1 表示开启 0 表示停止
+
+    ..  method:: Sensor.shutdown(enable)
+
+    关闭摄像头/切换摄像头
+
+    ..  method:: Sensor.width()
+
+    获取摄像头分辨率宽度
+
+    ..  method:: Sensor.height()
+
+    获取摄像头分辨率高度
+
+    ..  method:: Sensor.reset([freq=24000000, set_regs=True, dual_buff=False])
+
+    重置并初始化摄像头
+
+    ..  method:: Sensor.set_colorbar(enable)
+
+    将摄像头设置为彩条测试模式。
+    
+    开启彩条测试模式后，摄像头会输出一彩条图像，常用来检测摄像机总线是否连接正确。
+
+    ..  method:: Sensor.set_brightness(brightness)
+
+    设置摄像头亮度
+
+    - ``brightness`` -- 摄像头亮度，范围为[-2,+2]
+
+    ..  method:: Sensor.set_contrast(contrast)
+
+    设置摄像头对比度
+
+    - ``contrast`` -- 摄像头对比度，范围为[-2,+2]
+
+    ..  method:: Sensor.set_saturation(saturation)
+
+    设置摄像头饱和度
+
+    - ``saturation`` -- 摄像头饱和度，范围为[-2,+2]
+
+    ..  method:: Sensor.set_auto_gain(enable, gain_db)
+
+    设置摄像自动增益模式
+
+    - ``enable`` -- 1 表示开启自动增益 0 表示关闭自动增益
+    - ``gain_db`` -- 关闭自动增益时，设置的摄像头固定增益值，单位为dB
+
+    如果需要追踪颜色，需要关闭自动增益
+
+    ..  method:: Sensor.get_gain_db()
+
+    获取摄像头增益值
+
+    ..  method:: Sensor.set_auto_whitebal(enable)   
+
+    设置摄像自动白平衡模式,默认打开
 
 
 LCD 类
@@ -123,17 +440,72 @@ LCD 类
 .. class:: LCD()
 
 
-    .. method:: LCD.display(image, roi=None, offset=None)
+    .. method:: LCD.display(image [,roi, oft])
 
-    在液晶屏上显示图片。
+    在液晶屏上显示一张 image（GRAYSCALE或RGB565）。
 
         - ``image`` -- 为Image对象
         - ``roi``  -- 一个感兴趣区域的矩形元组(x, y, w, h)。若未指定，即为图像矩形
+        -  ``oft``  -- 图像显示位置
 
-    .. method:: LCD.clear(c=(0, 0, 0))
+    .. method:: LCD.init([type=1, freq=15000000, color=LCD.BLACK])
+
+    初始化 LCD 屏幕显示
+
+    .. method:: LCD.clear(color=LCD.BLACK)
 
     将液晶屏清空为黑色或者指定的颜色
 
+    .. method:: LCD.draw_string(x, y, text [, font_color=LCD.RED, bg_color=LCD.BLACK]):
+
+    在lcd屏上绘制文本。从(x,y)位置开始绘制text文本, ``font_color`` 为文本的颜色。``bg_color`` 为背景颜色。
+
+
+    .. method:: LCD.rotation(dir)
+
+    设置 LCD 屏幕方向
+
+        - ``dir`` -- 取值范围 [0,3]， 从0到3依次顺时针旋转
+        
+    .. method:: LCD.mirror(invert)
+
+    设置 LCD 是否镜面显示
+
+        - ``invert``  -- 是否镜面显示
+
+
+    .. method:: LCD.width()
+
+    返回 LCD 的宽度（水平分辨率）
+
+    .. method:: LCD.height()
+
+    返回 LCD 的高度（垂直分辨率）
+
+    .. method:: LCD.deinit()
+
+    注销 LCD 驱动，释放I/O引脚
+
+    **颜色常量**
+
+    .. data:: LCD.BLACK
+    .. data:: LCD.NAVY
+    .. data:: LCD.DARKGREEN
+    .. data:: LCD.DARKCYAN
+    .. data:: LCD.MAROON
+    .. data:: LCD.PURPLE
+    .. data:: LCD.OLIVE
+    .. data:: LCD.LIGHTGREY
+    .. data:: LCD.DARKGREY
+    .. data:: LCD.BLUE
+    .. data:: LCD.GREEN
+    .. data:: LCD.RED
+    .. data:: LCD.MAGENTA
+    .. data:: LCD.YELLOW
+    .. data:: LCD.WHITE
+    .. data:: LCD.ORANGE
+    .. data:: LCD.GREENYELLOW
+    .. data:: LCD.PINK
 
 
 KPU 类
@@ -155,30 +527,114 @@ KPU 具备以下几个特点：
 .. class:: KPU()
 
 
-
     .. method:: KPU.load(path)
 
-    从flash或者文件系统中加载模型,。`path` 可以是模型在 flash 中的偏移大小,如 0xd00000 表示模型烧录在13M起始的地方,或者模型在文件系统中为文件名， 如 "/sd/xxx.kmodel"
+    从flash或者文件系统中加载模型。加载后,返回 `kpu_net` 模型网络对象  。`path` 可以是模型在 flash 中的偏移大小,如 0xd00000 表示模型烧录在13M起始的地方,或者模型在文件系统中为文件名， 如 "/sd/xxx.kmodel"
 
-    .. method:: KPU.init_yolo2(threshold, nms_value, anchor_num, anchor)
+    AI Camera 、1956 、实验箱均在flash里烧录好一些常用的模型,如下:
+
+    ================    ===========
+    模型                  flash地址
+    ================    ===========
+    人脸追踪(yolo2)        0x300000
+    手写数字(分类器)        0x600000
+    20类(yolo2)           0x640000
+    ================    ===========
+
+
+    .. method:: KPU.init_yolo2(kpu_net, threshold, nms_value, anchor_num, anchor)
 
     为yolo2网络模型传入初始化参数。
 
+        - ``kpu_net`` -- `KPU.load()` 返回的模型网络对象
         - ``threshold`` -- 概率阈值
         - ``nms_value`` -- box_iou 门限
         - ``anchor_num`` -- 锚点数
         - ``anchor`` -- 锚点参数与模型参数一致
 
-    .. method:: KPU.run_yolo2(image)
+    .. method:: KPU.run_yolo2(kpu_net, image_t)
 
-    运行yolo2网络。`image` 为Image对象,从 sensor 采集到的图像。
+    运行yolo2网络
 
-    .. method:: KPU.forward(image)
+    - ``kpu_net`` -- `KPU.load()` 返回的模型网络对象
+    - ``image_t`` -- 从 sensor 采集到的图像
 
-    计算已加载的网络模型，输出目标层的特征图。`image` 为Image对象,从 sensor 采集到的图像。
+    .. method:: KPU.forward( kpu_net, img)
 
+    计算已加载的网络模型。
+    
+    - ``kpu_net`` -- `KPU.load()` 返回的模型网络对象
+    - ``img`` -- 从 sensor 采集到的图像
 
     .. method:: KPU.deinit()
 
     反初始化
 
+
+K210外设
++++++++++++++
+
+像AI Camera 、1956 、实验箱会有一些外围设备,与K210连接的,由K210控制。可使用下列类,与K210交互,间接的控制外设。
+
+
+Motor类
+~~~~~~~
+
+电机控制
+
+.. class:: Motor(channel, repl)
+
+
+    .. attribute:: Motor.speed
+
+    获取速度或设置速度
+
+Light类
+~~~~~~~
+
+灯控制
+
+.. class:: Light(repl, name='light')
+
+
+    .. method:: Light.on()
+
+    灯控制,打开。
+
+
+    .. method:: Light.off()
+
+    灯控制,关闭。
+
+
+Button类
+~~~~~~~
+
+按键控制
+
+.. class:: Button(repl, name='btn')
+
+    .. method:: Button.is_pressed()
+
+    返回当前是否按住。 ``True`` 表示按键按下，``False`` 则未按下。
+
+    .. method:: Button.was_pressed()
+
+    返回 ``True`` 或 ``False`` 指示自设备启动以来或上次调用此方法以来是否按下按钮。调用此方法将清除按下状态，因此必须再次按下按钮，然后才能再次返回 ``True`` 。
+
+    .. method:: Button.get_presses()
+
+    返回按键的运行总数，并在返回之前将该总数重置为零。
+
+
+
+Ultrasonic类
+~~~~~~~~~~~~~~
+
+超声波
+
+.. class:: Ultrasonic(repl, name='ultrasonic')
+
+    .. attribute:: Ultrasonic.distance
+
+    获取超声波的距离值
