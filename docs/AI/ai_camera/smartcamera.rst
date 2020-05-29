@@ -52,7 +52,12 @@ SmartCamera
     :linenos:
 
 
-
 .. literalinclude:: /../examples/AI_Camera/20classes.py
     :caption: 20类检测
     :linenos:
+
+.. literalinclude:: /../examples/AI_Camera/classifier_flow.py
+    :caption: 4类花的图像分类
+    :linenos:
+
+上述示例 :download:`4类花图像分类kmodel模型</../examples/Classifier_flower.kmodel>` 下载。

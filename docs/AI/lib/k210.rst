@@ -554,21 +554,23 @@ KPU 具备以下几个特点：
 
     .. method:: KPU.run_yolo2(kpu_net, image_t)
 
-    运行yolo2网络
+    运行yolo2网络。如侦测到对象,函数会返回含侦测到对象的列表,无,则返回 `None` 。每个对象为一个字典类型的成员。返回如下:
+
+        >>> [{'classid': 14, 'objnum': 1, 'w': 302, 'index': 0, 'y': 5, 'x': 19, 'h': 240, 'value': 0.546819},{'classid': 14, 'objnum': 1, 'w': 232, 'index': 0, 'y': 38, 'x': 0, 'h': 216, 'value': 0.898214}]
 
     - ``kpu_net`` -- `KPU.load()` 返回的模型网络对象
     - ``image_t`` -- 从 sensor 采集到的图像
 
     .. method:: KPU.forward( kpu_net, img)
 
-    计算已加载的网络模型。
+    计算已加载的神经网络网络模型。返回,模型运算的最终结果,为元组类型,可用于图像分类的模型应用。
     
     - ``kpu_net`` -- `KPU.load()` 返回的模型网络对象
     - ``img`` -- 从 sensor 采集到的图像
 
     .. method:: KPU.deinit()
 
-    反初始化
+    反初始化,释放模型资源。
 
 
 K210外设

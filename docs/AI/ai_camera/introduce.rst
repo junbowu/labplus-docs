@@ -56,7 +56,7 @@ AI Camera 简介
 .. Important:: AI Camera模块在出厂前已烧录过固件的。非必要情况,如固件出现异常、或固件有重大升级,是无需再次烧录！
 
 1. 准备 kflash_gui K210烧录工具 https://github.com/sipeed/kflash_gui 
-2. 下载最新版的 :download:`AI Camera MaixPy固件 </../firmware/owl/owl.kfpkg>`
+2. 下载最新版的 :download:`AI Camera MaixPy固件 </../firmware/owl/owl-2472398.kfpkg>`
 3. 参数选择: 选择需要下载的固件；开发板选择 `Sipeed Maix Bit` ; 下载到 `Flash` ; 串口选择该板对应串口号；波特率选择 `4000000` ;
 4. 点击下载 
 
