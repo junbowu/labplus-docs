@@ -1,10 +1,12 @@
 
 
-:class:`machine.display/Image` --- 5x5点阵高级显示
+:mod:`rgbLED5x5` ── RGB 5x5点阵显示
 =================================================
 
+.. module:: rgbLED5x5
 
-掌控实验箱上的rgb灯除了可使用 `neopixel` 库驱动，现在 ``machine`` 模块中新增模块 `display` 对象 和 `Image` 类 ，用于显示图片和文字。模块移植于 ``microbit`` 相应库，保持跟 `microbit` 库兼容，同时新增色彩控制相关特性。
+
+掌控实验箱上的rgb灯除了可使用 `neopixel` 库驱动，现在 ``rgbLED5x5`` 模块中 `display` 对象 和 `Image` 类 ，用于显示图片和文字。模块移植于 ``microbit`` 相应库，保持跟 `microbit` 库兼容，同时新增色彩控制相关特性。
 
 
 ---------------------------------------------------------------
@@ -16,26 +18,26 @@ display
 该模块控制掌控板实验箱上的的5×5 LED点阵。它可用于显示图像，及文本。
 
 
-.. method:: machine.display.get_pixel(x, y)
+.. method:: rgbLED5x5.display.get_pixel(x, y)
 
 获取LED点阵 `x` 列 `y` 行像素点颜色值
 
 
-.. method:: machine.display.set_pixel(x, y, value)
+.. method:: rgbLED5x5.display.set_pixel(x, y, value)
 
 设置LED点阵 `x` 列 `y` 行像素点。当 `value` 为整形时,为1表示点亮,0则熄灭。当为元组类型时,格式(r,g,b)将以指定颜色点亮。
 
 
-.. method:: machine.display.clear()
+.. method:: rgbLED5x5.display.clear()
 
 关闭所有LED点阵的像素点。
 
-.. method:: machine.display.show(image)
+.. method:: rgbLED5x5.display.show(image)
 
 显示 ``image`` 图像 。可用于显示内置图像或自定义图像。
 
 
-.. method:: machine.display.show(value, delay=400, \*, wait=True, loop=False, clear=False)
+.. method:: rgbLED5x5.display.show(value, delay=400, \*, wait=True, loop=False, clear=False)
 
 如果value为字符串，浮点数或整数，则按顺序显示字母/数字。否则，如果value是可重复的图像序列，请依次显示这些图像。每个字母，数字或图像delay之间以毫秒为单位显示。可指定亮度和颜色，默认颜色红色。
 
@@ -47,7 +49,7 @@ display
 *请注意wait，loop和clear参数必须使用其关键字指定*
 
 
-.. method:: machine.display.scroll(value, delay=150, \*, wait=True, loop=False, monospace=False)
+.. method:: rgbLED5x5.display.scroll(value, delay=150, \*, wait=True, loop=False, monospace=False)
 
 在显示屏上水平滚动。如果value为整数或浮点数，则首先使用将其转换为字符串str()。该delay参数控制文本滚动的速度。
 
@@ -62,33 +64,33 @@ Image
 --------------
 
 .. class::
-    machine.Image(string)
-    machine.Image(width=None, height=None, buffer=None, value=None,color=(255,0,0))
+    rgbLED5x5.Image(string)
+    rgbLED5x5.Image(width=None, height=None, buffer=None, value=None,color=(255,0,0))
     
     如果 `string` 使用，则它必须由排列成行的数字0,1组成，以描述图像，例如::
 
-        image = Image("10001:"
-                      "01010:"
-                      "00100:"
-                      "01010:"
-                      "10001")
+        image = rgbLED5x5.Image("10001:"
+                                "01010:"
+                                "00100:"
+                                "01010:"
+                                "10001")
 
     将创建X的5×5图像。行的结尾用冒号表示。也可以使用换行符（n）指示行的结束，如下所示::
 
-        image = Image("10001\n"
-                      "01010\n"
-                      "00100\n"
-                      "01010\n"
-                      "10001")
+        image = rgbLED5x5.Image("10001\n"
+                                "01010\n"
+                                "00100\n"
+                                "01010\n"
+                                "10001")
 
     另一种形式创建指定宽高的空图像。（可选）buffer为整数数组 以初始化图像::
    
-        Image(2, 2, b'\x01\x01\x01\x01')
+        rgbLED5x5.Image(2, 2, b'\x01\x01\x01\x01')
 
 
     指定颜色,以初始化图像::
 
-        Image("01010:01010:01010:11111:01110",(0,50,0))
+        rgbLED5x5.Image("01010:01010:01010:11111:01110",(0,50,0))
 
     .. method:: width()
 
