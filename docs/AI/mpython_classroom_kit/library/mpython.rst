@@ -112,39 +112,39 @@ apu
 提供实验箱上K210控制的外设驱动函数和人工智能应用的相关函数。
 
 
-    .. attribute:: motor
+    .. attribute:: apu.motor
 
     :class:`k210.Motor` 的实例,用于控制电机。有关更多类的方法,请查阅该类详情。
 
-    .. attribute:: ultrasonic
+    .. attribute:: apu.ultrasonic
 
     :class:`k210.Ultrasonic` 的实例,获取超声波的距离值。有关更多类的方法,请查阅该类详情。
 
-    .. attribute:: light
+    .. attribute:: apu.light
 
     :class:`k210.Light` 的实例,用于控制补光灯亮灭。有关更多类的方法,请查阅该类详情。
 
-    .. attribute:: btn_left
-    .. attribute:: btn_right
-    .. attribute:: btn_up
-    .. attribute:: btn_down
-    .. attribute:: btn_ok
+    .. attribute:: apu.btn_left
+    .. attribute:: apu.btn_right
+    .. attribute:: apu.btn_up
+    .. attribute:: apu.btn_down
+    .. attribute:: apu.btn_ok
 
     :class:`k210.Button` 的实例,检测按键状态。有关更多类的方法,请查阅该类详情。
 
 
-    .. attribute:: image
+    .. attribute:: apu.image
 
     :class:`k210.Image` 的实例, `Image` 尺寸为LCD屏的尺寸大小。有关更多类的方法,请查阅该类详情。
 
-    .. attribute:: sensor
+    .. attribute:: apu.sensor
 
     :class:`k210.Sensor` 的实例,用于摄像头的操作。有关更多类的方法,请查阅该类详情。
 
-    .. attribute:: lcd
+    .. attribute:: apu.lcd
 
     :class:`k210.LCD` 的实例,用于LCD屏的操作。有关更多类的方法,请查阅该类详情。
 
-    .. attribute:: kpu
+    .. attribute:: apu.kpu
 
     :class:`k210.KPU` 的实例,用于AI模型运行的相关。有关更多类的方法,请查阅该类详情

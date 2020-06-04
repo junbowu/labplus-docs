@@ -1,16 +1,14 @@
 
-编程手册
+类库
 ===========================
 
-在 `Python` 编程上,由于 `人工智能项目开发板（1956` 项目移植于 `mPython`  ,可较好兼容掌控板的编程。基础的 `mPython` 的编程的相关驱动库就不在此
-逐一说明,需要了解可到 `掌控板编程手册 mpython.readthedocs.io <https://mpython.readthedocs.io>`_ 查阅。注意, `mpython模块 <https://mpython.readthedocs.io/zh/master/library/mPython/mpython.html>`_ 个别差异,下文会列出说明,
+1956集成掌控板主控及一体化丰富的传感器和输出设备。集成专门的 K210 AI处理器,处理视觉图像和神经网络运算,可实现人脸识别、物体追踪等人工智能应用。
 
 
 .. toctree::
     :maxdepth: 1
 
     mpython.rst
-    apu.rst
 
 
     
