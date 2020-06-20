@@ -49,11 +49,14 @@ load_py_modules(RAW_REPO_ROOT_URL+'port/boards/mpython/modules/mpython.py')
 load_py_modules(RAW_REPO_ROOT_URL+'port/modules/parrot.py')
 load_py_modules(RAW_REPO_ROOT_URL+'port/modules/bluebit.py')
 
+# RAW_ROBOT_URL = 'https://raw.githubusercontent.com/labplus-cn/mpython-desktop-robot/master/'
+# load_py_modules(RAW_ROBOT_URL+'port/boards/mpython-desktop-robot/modules/robot.py')
+
 sys.path.insert(0, os.path.abspath('./_build/py'))
 
 autodoc_mock_imports = ["time", "micropython", "machine",
                         "framebuf", "ubinascii", "neopixel", "mpython", "random",
-                        "_thread","ustruct"
+                        "_thread","ustruct","esp32"
                         ]
 
 extensions = [
@@ -65,6 +68,7 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
+    'sphinx.ext.napoleon',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

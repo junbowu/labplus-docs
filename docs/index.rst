@@ -11,6 +11,7 @@
    :maxdepth: 2
 
    AI/index.rst
+   mpython-desktop-robot/index.rst
 
 
 
