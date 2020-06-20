@@ -13,5 +13,7 @@
    :maxdepth: 1
 
    introduce.rst
+   esp32_pin
    library/index.rst
+
 
