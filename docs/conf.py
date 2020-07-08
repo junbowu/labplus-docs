@@ -31,8 +31,9 @@ import urllib
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 
-def load_py_modules(url):
-    _path = './_build/py'
+def load_py_modules(url, path):
+    # _path = './_build/py'
+    _path = path
     if not os.path.exists(_path):
         os.makedirs(_path)
     file_path = _path+'/'+url.split('/')[-1]
@@ -45,18 +46,20 @@ def load_py_modules(url):
 
 RAW_REPO_ROOT_URL = 'https://raw.githubusercontent.com/labplus-cn/mpython/master/'
 
-load_py_modules(RAW_REPO_ROOT_URL+'port/boards/mpython/modules/mpython.py')
-load_py_modules(RAW_REPO_ROOT_URL+'port/modules/parrot.py')
-load_py_modules(RAW_REPO_ROOT_URL+'port/modules/bluebit.py')
+load_py_modules(RAW_REPO_ROOT_URL+'port/boards/mpython/modules/mpython.py', './_build/py')
+load_py_modules(RAW_REPO_ROOT_URL+'port/modules/parrot.py',  './_build/py')
+load_py_modules(RAW_REPO_ROOT_URL+'port/modules/bluebit.py', './_build/py')
 
 RAW_ROBOT_URL = 'https://raw.githubusercontent.com/labplus-cn/mpython-desktop-robot/master/'
-load_py_modules(RAW_ROBOT_URL+'port/boards/mpython-desktop-robot/modules/robot.py')
+load_py_modules(RAW_ROBOT_URL+'port/boards/mpython-desktop-robot/modules/robot.py', './_build/py/robot')
+load_py_modules(RAW_ROBOT_URL+'port/boards/mpython-desktop-robot/modules/mpython.py', './_build/py/robot') 
 
 sys.path.insert(0, os.path.abspath('./_build/py'))
+sys.path.insert(0, os.path.abspath('./_build/py/robot'))
 
 autodoc_mock_imports = ["time", "micropython", "machine",
                         "framebuf", "ubinascii", "neopixel", "mpython", "random",
-                        "_thread","ustruct","esp32"
+                        "_thread","ustruct","esp32", "hcsr04",
                         ]
 
 extensions = [

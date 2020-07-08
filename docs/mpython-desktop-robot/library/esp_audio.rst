@@ -7,7 +7,7 @@ esp_audio 模块
 :mod:`esp_audio` --- 音频模块
 
 player 类
-++++++++++
+++++++++++++
 
 播放器类，用于实现播放相关功能。
 
@@ -20,7 +20,7 @@ player 类
     - ``i2c``:传一个i2c对象给模块，用于操作解码芯片。
 
 函数
-~~~~
+~~~~~~
 .. method:: player.info()
 
 获取播放信息
@@ -38,7 +38,7 @@ player 类
 
 暂停播放
 
-.. method:: player.pause()
+.. method:: player.resume()
 
 恢复播放
 
@@ -63,7 +63,7 @@ player 类
     * ``player.STATUS_ERROR``
 
 recorder 类
-++++++++++
++++++++++++++++
 
 录音类，用于实现录音功能。
 
@@ -75,7 +75,7 @@ recorder 类
     - ``i2c``:传一个i2c对象给模块，用于操作解码芯片。
 
 函数
-~~~~
+~~~~~~~~
 .. method:: recorder.start(file, format)
 
 启动录音
@@ -95,6 +95,4 @@ recorder 类
 
 
 示例
-----
-::
-
+-------
